@@ -1,6 +1,8 @@
 --[[
-	Kryptic by Exunys © CC0 1.0 Universal (2023) – Modifiye
+
+	AirHub V2 by Exunys © CC0 1.0 Universal (2023)
 	https://github.com/Exunys
+
 ]]
 
 --// Loaded Check
@@ -25,19 +27,13 @@ local osdate = os.date
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/Roblox-Functions-Library/main/Library.lua"))()
 
-local GUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/AirHub-V2/main/src/UI%20Library.lua"))()
+local GUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/TopFootbal/Krypt-c-External-Setup/refs/heads/main/src/UI%20Library.lua"))()
 local ESP = loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/Exunys-ESP/main/src/ESP.lua"))()
 local Aimbot = loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/Aimbot-V3/main/src/Aimbot.lua"))()
 
 --// Variables
 
-local MainFrame = GUI:Load({
-	name = "Kryptic",   -- Menü adı değiştirildi
-	sizex = 450,
-	sizey = 500,
-	theme = "AirHub",
-	folder = "Kryptic"
-})
+local MainFrame = GUI:Load()
 
 local ESP_DeveloperSettings = ESP.DeveloperSettings
 local ESP_Settings = ESP.Settings
@@ -57,53 +53,6 @@ Aimbot_Settings.Enabled = false
 local Fonts = {"UI", "System", "Plex", "Monospace"}
 local TracerPositions = {"Bottom", "Center", "Mouse"}
 local HealthBarPositions = {"Top", "Bottom", "Left", "Right"}
-
---// Kar Taneleri Efekti
-local snowflakes = {}
-local snowflakesEnabled = false
-local snowflakesConnection
-
-local function createSnowflake()
-	local flake = Drawing.new("Circle")
-	flake.Filled = true
-	flake.Color = Color3.fromRGB(255, 255, 255)
-	flake.Transparency = 0.5 + math.random() * 0.5
-	flake.Radius = math.random(2, 6)
-	flake.Position = Vector2.new(math.random(0, workspace.CurrentCamera.ViewportSize.X), math.random(-50, 0))
-	flake.Visible = true
-	flake.ZIndex = 1000
-	table.insert(snowflakes, flake)
-end
-
-local function toggleSnowflakes(state)
-	snowflakesEnabled = state
-	if state then
-		if snowflakesConnection then return end
-		snowflakesConnection = game:GetService("RunService").RenderStepped:Connect(function()
-			if not snowflakesEnabled then return end
-			for i = #snowflakes, 1, -1 do
-				local flake = snowflakes[i]
-				flake.Position = flake.Position + Vector2.new(0, 2)
-				if flake.Position.Y > workspace.CurrentCamera.ViewportSize.Y then
-					flake:Remove()
-					table.remove(snowflakes, i)
-				end
-			end
-			if math.random(1, 20) == 1 then
-				createSnowflake()
-			end
-		end)
-	else
-		if snowflakesConnection then
-			snowflakesConnection:Disconnect()
-			snowflakesConnection = nil
-		end
-		for _, flake in ipairs(snowflakes) do
-			flake:Remove()
-		end
-		table.clear(snowflakes)
-	end
-end
 
 --// Tabs
 
@@ -926,11 +875,6 @@ local InformationSection = Settings:Section({
 	Side = "Right"
 })
 
-local MiscellaneousSection = Settings:Section({
-	Name = "Miscellaneous",
-	Side = "Right"
-})
-
 SettingsSection:Keybind({
 	Name = "Show / Hide GUI",
 	Flag = "UI Toggle",
@@ -949,76 +893,9 @@ SettingsSection:Button({
 		GUI:Unload()
 		ESP:Exit()
 		Aimbot:Exit()
-		toggleSnowflakes(false)
 		getgenv().AirHubV2Loaded = nil
 	end
 })
-
--- Kar Taneleri Toggle
-MiscellaneousSection:Toggle({
-	Name = "Snowflakes",
-	Flag = "Snowflakes",
-	Default = false,
-	Callback = function(state)
-		toggleSnowflakes(state)
-	end
-})
-
--- Yeni ESP Geliştirmeleri (placeholder)
-local ESPImprovements = Settings:Section({
-	Name = "ESP Improvements",
-	Side = "Left"
-})
-
-ESPImprovements:Toggle({
-	Name = "Visibility Check (experimental)",
-	Flag = "ESP_VisibilityCheck",
-	Default = false,
-	Callback = function(state)
-		-- Burada ESP modülüne visibility check eklemek için bir hook yapılabilir.
-		-- Örnek: ESP.Properties.ESP.VisibilityCheck = state
-	end
-})
-
-ESPImprovements:Slider({
-	Name = "Distance Limit",
-	Flag = "ESP_DistanceLimit",
-	Default = 500,
-	Min = 50,
-	Max = 2000,
-	Callback = function(value)
-		-- ESP'ye mesafe sınırı eklemek için
-	end
-})
-
--- Yeni Aimbot Geliştirmeleri (placeholder)
-local AimbotImprovements = Settings:Section({
-	Name = "Aimbot Improvements",
-	Side = "Right"
-})
-
-AimbotImprovements:Slider({
-	Name = "Smoothness",
-	Flag = "Aimbot_Smoothness",
-	Default = 1,
-	Min = 1,
-	Max = 20,
-	Callback = function(value)
-		-- Aimbot smoothness ayarı
-		-- Örnek: Aimbot.Settings.Smoothness = value
-	end
-})
-
-AimbotImprovements:Toggle({
-	Name = "Prediction",
-	Flag = "Aimbot_Prediction",
-	Default = false,
-	Callback = function(state)
-		-- Hedef tahmini
-	end
-})
-
---// Configurations
 
 local ConfigList = ProfilesSection:Dropdown({
 	Name = "Configurations",
@@ -1073,7 +950,36 @@ InformationSection:Button({
 	end
 })
 
---// Load
+--[=[
+local MiscellaneousSection = Settings:Section({
+	Name = "Miscellaneous",
+	Side = "Right"
+})
+
+local TimeLabel = MiscellaneousSection:Label("...")
+local FPSLabel = MiscellaneousSection:Label("...")
+local PlayersLabel = MiscellaneousSection:Label("...")
+
+MiscellaneousSection:Button({
+	Name = "Rejoin",
+	Callback = Rejoin
+})
+
+delay(2, function()
+	spawn(function()
+		while wait(1) do
+			TimeLabel:Set(osdate("%c"))
+			PlayersLabel:Set(#Players:GetPlayers())
+		end
+	end)
+
+	RunService.RenderStepped:Connect(function(FPS)
+		FPSLabel:Set("FPS: "..mathfloor(1 / FPS))
+	end)
+end)
+]=]
+
+--//
 
 ESP.Load()
 Aimbot.Load()
@@ -1081,4 +987,4 @@ getgenv().AirHubV2Loaded = true
 getgenv().AirHubV2Loading = nil
 
 GeneralSignal:Fire()
--- GUI:Close() satırı kaldırıldı, menü başlangıçta açık.
+GUI:Close()
